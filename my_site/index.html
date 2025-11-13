@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Love in 99 Languages</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 25%, #c3e6cb 50%, #b7dfb4 75%, #a8d5a8 100%);
+        }
+        
+        /* 5x3 绿色系背景网格 */
+        .background-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            z-index: -1;
+        }
+        
+        .grid-cell {
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.5s ease;
+        }
+        
+        .grid-cell:hover {
+            filter: brightness(1.1);
+            transform: scale(1.02);
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            text-align: center;
+            z-index: 10;
+            padding: 40px 20px;
+        }
+        
+        /* 导入飘逸的手写字体 */
+        @import url('https://fonts.googleapis.com/css2?family=Allura&family=Dancing+Script:wght@700&family=Great+Vibes&family=Parisienne&display=swap');
+        
+        h1 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 6rem;
+            margin-bottom: 10px;
+            color: #1a472a;
+            font-weight: 400;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.1);
+            letter-spacing: 3px;
+        }
+        
+        .subtitle {
+            font-family: 'Allura', cursive;
+            font-size: 2.8rem;
+            margin-bottom: 30px;
+            color: #2d5016;
+            letter-spacing: 2px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: rgba(255, 255, 255, 0.7);
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            color: #2d5016;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            backdrop-filter: blur(5px);
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.3rem;
+        }
+        
+        button:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .counter {
+            font-family: 'Allura', cursive;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 10px 30px;
+            border-radius: 30px;
+            display: inline-block;
+            color: #2d5016;
+            backdrop-filter: blur(5px);
+        }
+        
+        #windows-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .love-window {
+            position: absolute;
+            width: 200px;
+            height: 120px;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-out, fadeOut 0.5s ease-in 2.5s forwards;
+            pointer-events: none;
+            font-weight: bold;
+            font-size: 18px;
+            line-height: 1.3;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            font-family: 'Dancing Script', cursive;
+        }
+        
+        .love-window::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            z-index: -1;
+            border-radius: 13px;
+        }
+        
+        .language {
+            font-size: 14px;
+            margin-top: 5px;
+            opacity: 0.9;
+            font-style: italic;
+            font-family: 'Parisienne', cursive;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8) translateY(20px) rotate(-5deg); }
+            to { opacity: 1; transform: scale(1) translateY(0) rotate(0deg); }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: scale(1) rotate(0deg); }
+            to { opacity: 0; transform: scale(0.8) rotate(5deg); }
+        }
+        
+        /* 关于此项目部分 - 放置在底部1/4处 */
+        .info-panel {
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 700px;
+            backdrop-filter: blur(10px);
+            position: absolute;
+            left: 50%;
+            bottom: 25%; /* 距离底部1/4 */
+            transform: translateX(-50%);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            z-index: 5;
+        }
+        
+        /* 花边装饰 */
+        .info-panel::before, .info-panel::after {
+            content: "❦";
+            position: absolute;
+            font-size: 2rem;
+            color: #5a8c3a;
+        }
+        
+        .info-panel::before {
+            top: -15px;
+            left: 20px;
+            transform: rotate(15deg);
+        }
+        
+        .info-panel::after {
+            bottom: -15px;
+            right: 20px;
+            transform: rotate(195deg);
+        }
+        
+        .info-panel h2 {
+            font-family: 'Great Vibes', cursive;
+            margin-bottom: 15px;
+            font-size: 2.8rem;
+            color: #2d5016;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+        
+        .info-panel p {
+            font-family: 'Allura', cursive;
+            font-size: 1.8rem;
+            line-height: 1.6;
+            color: #3a5c24;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+        
+        .floating-hearts {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .heart {
+            position: absolute;
+            font-size: 24px;
+            color: rgba(255, 105, 180, 0.3);
+            animation: float 15s infinite linear;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.7;
+            }
+            90% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 4rem;
+            }
+            
+            .subtitle {
+                font-size: 2rem;
+            }
+            
+            .love-window {
+                width: 150px;
+                height: 100px;
+                font-size: 16px;
+            }
+            
+            .info-panel {
+                padding: 20px;
+                max-width: 90%;
+                bottom: 20%;
+            }
+            
+            .info-panel h2 {
+                font-size: 2.2rem;
+            }
+            
+            .info-panel p {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 漂浮的心形装饰 -->
+    <div class="floating-hearts" id="floatingHearts"></div>
+    
+    <!-- 5x3 绿色系背景网格 -->
+    <div class="background-grid" id="backgroundGrid"></div>
+    
+    <div class="container">
+        <h1>Love</h1>
+        <p class="subtitle">In 99 Languages</p>
+        
+        <div class="controls">
+            <button id="startBtn">Begin the Journey</button>
+            <button id="pauseBtn">Pause</button>
+            <button id="resetBtn">Start Over</button>
+            <button id="speedUpBtn">Faster</button>
+            <button id="speedDownBtn">Slower</button>
+        </div>
+        
+        <div class="counter">Words Shown: <span id="counter">0</span>/99</div>
+    </div>
+    
+    <!-- 关于此项目部分 -->
+    <div class="info-panel">
+        <h2>About This Project</h2>
+        <p>This interactive display presents the word "Love" in 99 different languages. Each word appears randomly on the screen with beautiful animations and fades out after 3 seconds.</p>
+    </div>
+    
+    <div id="windows-container"></div>
+
+    <script>
+        // 99种不同语言的"爱"词汇
+        const loveWords = [
+            {language: "English", word: "Love"}, {language: "Spanish", word: "Amor"}, 
+            {language: "French", word: "Amour"}, {language: "German", word: "Liebe"}, 
+            {language: "Italian", word: "Amore"}, {language: "Portuguese", word: "Amor"}, 
+            {language: "Russian", word: "Любовь"}, {language: "Japanese", word: "愛"}, 
+            {language: "Korean", word: "사랑"}, {language: "Arabic", word: "حب"}, 
+            {language: "Hindi", word: "प्यार"}, {language: "Bengali", word: "ভালবাসা"}, 
+            {language: "Turkish", word: "Aşk"}, {language: "Dutch", word: "Liefde"}, 
+            {language: "Polish", word: "Miłość"}, {language: "Ukrainian", word: "Любов"}, 
+            {language: "Vietnamese", word: "Tình yêu"}, {language: "Thai", word: "ความรัก"}, 
+            {language: "Greek", word: "Αγάπη"}, {language: "Hebrew", word: "אהבה"}, 
+            {language: "Persian", word: "عشق"}, {language: "Swedish", word: "Kärlek"}, 
+            {language: "Norwegian", word: "Kjærlighet"}, {language: "Danish", word: "Kærlighed"}, 
+            {language: "Finnish", word: "Rakkaus"}, {language: "Icelandic", word: "Ást"}, 
+            {language: "Czech", word: "Láska"}, {language: "Slovak", word: "Láska"}, 
+            {language: "Hungarian", word: "Szerelem"}, {language: "Romanian", word: "Dragoste"}, 
+            {language: "Bulgarian", word: "Любов"}, {language: "Croatian", word: "Ljubav"}, 
+            {language: "Serbian", word: "Љубав"}, {language: "Slovenian", word: "Ljubezen"}, 
+            {language: "Lithuanian", word: "Meilė"}, {language: "Latvian", word: "Mīlestība"}, 
+            {language: "Estonian", word: "Armastus"}, {language: "Macedonian", word: "Љубов"}, 
+            {language: "Albanian", word: "Dashuri"}, {language: "Maltese", word: "Imħabba"}, 
+            {language: "Irish", word: "Grá"}, {language: "Welsh", word: "Cariad"}, 
+            {language: "Scottish Gaelic", word: "Gaol"}, {language: "Basque", word: "Maitasuna"}, 
+            {language: "Catalan", word: "Amor"}, {language: "Tibetan", word: "གཅེས་པ"}, 
+            {language: "Mongolian", word: "Хайр"}, {language: "Uyghur", word: "مۇھەببەت"}, 
+            {language: "Kazakh", word: "Махаббат"}, {language: "Burmese", word: "အချစ်"}, 
+            {language: "Sinhala", word: "ආදරය"}, {language: "Nepali", word: "माया"}, 
+            {language: "Tamil", word: "காதல்"}, {language: "Telugu", word: "ప్రేమ"}, 
+            {language: "Kannada", word: "ಪ್ರೇಮ"}, {language: "Malayalam", word: "പ്രണയം"}, 
+            {language: "Punjabi", word: "ਪਿਆਰ"}, {language: "Gujarati", word: "પ્રેમ"}, 
+            {language: "Marathi", word: "प्रेम"}, {language: "Urdu", word: "محبت"}, 
+            {language: "Pashto", word: "مينه"}, {language: "Kurdish", word: "Evîn"}, 
+            {language: "Armenian", word: "Սեր"}, {language: "Georgian", word: "სიყვარული"}, 
+            {language: "Azerbaijani", word: "Sevgi"}, {language: "Swahili", word: "Upendo"}, 
+            {language: "Zulu", word: "Uthando"}, {language: "Xhosa", word: "Uthando"}, 
+            {language: "Afrikaans", word: "Liefde"}, {language: "Amharic", word: "ፍቅር"}, 
+            {language: "Somali", word: "Jaceyl"}, {language: "Yoruba", word: "Ife"}, 
+            {language: "Igbo", word: "Ịhụnanya"}, {language: "Hausa", word: "Soyayya"}, 
+            {language: "Indonesian", word: "Cinta"}, {language: "Malay", word: "Cinta"}, 
+            {language: "Tagalog", word: "Pag-ibig"}, {language: "Hawaiian", word: "Aloha"}, 
+            {language: "Maori", word: "Aroha"}, {language: "Samoan", word: "Alofa"}, 
+            {language: "Fijian", word: "Loloma"}, {language: "Esperanto", word: "Amo"}, 
+            {language: "Latin", word: "Amor"}, {language: "Sanskrit", word: "प्रेम"}, 
+            {language: "Tongan", word: "'Ofa"}, {language: "Tahitian", word: "Here"}, 
+            {language: "Luxembourgish", word: "Léift"}, {language: "Faroese", word: "Kærleiki"}, 
+            {language: "Greenlandic", word: "Asanninneq"}, {language: "Sardinian", word: "Amore"}, 
+            {language: "Corsican", word: "Amore"}, {language: "Galician", word: "Amor"}, 
+            {language: "Breton", word: "Karantez"}, {language: "Manx", word: "Grad"}, 
+            {language: "Cornish", word: "Kerenza"}, {language: "Romansh", word: "Amur"}, 
+            {language: "Lao", word: "ຄວາມຮັກ"}, {language: "Khmer", word: "សេចក្តីស្រឡាញ់"}, 
+            {language: "Malagasy", word: "Fitiavana"}, {language: "Dzongkha", word: "དགའ་པོ"}, 
+            {language: "Bislama", word: "Lav"}, {language: "Kinyarwanda", word: "Urukundo"}
+        ];
+
+        // 背景颜色列表
+        const backgroundColors = [
+            "#9CBC7C", "#F3E483", "#F37A00", "#F32000", 
+            "#7F1DEF", "#8969AE", "#BF81BF", "#C8B8DC"
+        ];
+
+        // 绿色系颜色（用于背景网格）
+        const greenColors = [
+            "#e8f5e8", "#d4edda", "#c3e6cb", "#b7dfb4", "#a8d5a8",
+            "#96c996", "#85bd85", "#75b175", "#66a566", "#5a9c5a",
+            "#4d934d", "#428a42", "#378037", "#2d772d", "#246e24"
+        ];
+
+        // 全局变量
+        let currentIndex = 0;
+        let intervalId = null;
+        let intervalTime = 1000; // 默认1秒
+        let isPaused = false;
+        const usedPositions = [];
+
+        // DOM元素
+        const windowsContainer = document.getElementById('windows-container');
+        const counterElement = document.getElementById('counter');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const speedUpBtn = document.getElementById('speedUpBtn');
+        const speedDownBtn = document.getElementById('speedDownBtn');
+        const backgroundGrid = document.getElementById('backgroundGrid');
+        const floatingHearts = document.getElementById('floatingHearts');
+
+        // 初始化
+        function init() {
+            createGreenGrid();
+            createFloatingHearts();
+            startBtn.addEventListener('click', startShow);
+            pauseBtn.addEventListener('click', togglePause);
+            resetBtn.addEventListener('click', resetShow);
+            speedUpBtn.addEventListener('click', speedUp);
+            speedDownBtn.addEventListener('click', speedDown);
+            
+            // 初始禁用暂停按钮
+            pauseBtn.disabled = true;
+        }
+
+        // 创建漂浮的心形
+        function createFloatingHearts() {
+            for (let i = 0; i < 20; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = '❤';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDelay = Math.random() * 15 + 's';
+                heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                floatingHearts.appendChild(heart);
+            }
+        }
+
+        // 创建5x3绿色网格背景
+        function createGreenGrid() {
+            // 清空现有网格
+            backgroundGrid.innerHTML = '';
+            
+            // 创建5x3网格
+            const gridColors = [...greenColors].sort(() => Math.random() - 0.5);
+            
+            for (let i = 0; i < 15; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                
+                // 确保相邻格子颜色不同
+                let colorIndex = i % greenColors.length;
+                cell.style.backgroundColor = gridColors[colorIndex];
+                
+                backgroundGrid.appendChild(cell);
+            }
+        }
+
+        // 开始展示
+        function startShow() {
+            if (currentIndex >= loveWords.length) {
+                resetShow();
+            }
+            
+            isPaused = false;
+            startBtn.disabled = true;
+            pauseBtn.disabled = false;
+            pauseBtn.textContent = "Pause";
+            
+            // 清除之前的定时器
+            if (intervalId) {
+                clearInterval(intervalId);
+            }
+            
+            // 创建新定时器
+            intervalId = setInterval(createWindow, intervalTime);
+            
+            // 立即创建第一个窗口
+            createWindow();
+        }
+
+        // 创建窗口
+        function createWindow() {
+            if (currentIndex >= loveWords.length || isPaused) {
+                return;
+            }
+            
+            const love = loveWords[currentIndex];
+            const windowElement = document.createElement('div');
+            windowElement.className = 'love-window';
+            
+            // 随机选择背景颜色
+            const bgColor = backgroundColors[Math.floor(Math.random() * backgroundColors.length)];
+            windowElement.style.backgroundColor = bgColor;
+            
+            // 设置内容
+            windowElement.innerHTML = `
+                <div class="word">${love.word}</div>
+                <div class="language">${love.language}</div>
+            `;
+            
+            // 获取随机位置（避免重叠）
+            const position = getRandomPosition();
+            windowElement.style.left = `${position.x}px`;
+            windowElement.style.top = `${position.y}px`;
+            
+            // 添加到容器
+            windowsContainer.appendChild(windowElement);
+            
+            // 更新计数器
+            currentIndex++;
+            counterElement.textContent = currentIndex;
+            
+            // 3秒后移除窗口
+            setTimeout(() => {
+                if (windowElement.parentNode) {
+                    windowElement.parentNode.removeChild(windowElement);
+                }
+            }, 3000);
+            
+            // 如果到达末尾，停止
+            if (currentIndex >= loveWords.length) {
+                clearInterval(intervalId);
+                startBtn.disabled = false;
+                pauseBtn.disabled = true;
+            }
+        }
+
+        // 获取随机位置（避免重叠）
+        function getRandomPosition() {
+            const maxAttempts = 100;
+            const windowWidth = 200;
+            const windowHeight = 120;
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            
+            for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                let x, y;
+                
+                if (attempt < maxAttempts / 2) {
+                    // 偏向屏幕边缘
+                    const edgeBias = Math.random() * 0.7;
+                    if (Math.random() > 0.5) {
+                        x = Math.random() * (screenWidth - windowWidth) * edgeBias;
+                    } else {
+                        x = screenWidth - windowWidth - Math.random() * (screenWidth - windowWidth) * edgeBias;
+                    }
+                    
+                    if (Math.random() > 0.5) {
+                        y = Math.random() * (screenHeight - windowHeight) * edgeBias;
+                    } else {
+                        y = screenHeight - windowHeight - Math.random() * (screenHeight - windowHeight) * edgeBias;
+                    }
+                } else {
+                    // 完全随机
+                    x = Math.random() * (screenWidth - windowWidth);
+                    y = Math.random() * (screenHeight - windowHeight);
+                }
+                
+                // 检查是否与已有窗口重叠
+                if (!isOverlapping(x, y, windowWidth, windowHeight)) {
+                    usedPositions.push({x, y, width: windowWidth, height: windowHeight});
+                    return {x, y};
+                }
+            }
+            
+            // 如果找不到合适位置，使用网格分布
+            const gridSize = Math.ceil(Math.sqrt(loveWords.length));
+            const col = currentIndex % gridSize;
+            const row = Math.floor(currentIndex / gridSize);
+            
+            const x = (col / gridSize) * (screenWidth - windowWidth) + (Math.random() * 50 - 25);
+            const y = (row / gridSize) * (screenHeight - windowHeight) + (Math.random() * 50 - 25);
+            
+            usedPositions.push({x, y, width: windowWidth, height: windowHeight});
+            return {x: Math.max(0, Math.min(x, screenWidth - windowWidth)), 
+                    y: Math.max(0, Math.min(y, screenHeight - windowHeight))};
+        }
+
+        // 检查是否重叠
+        function isOverlapping(x, y, width, height) {
+            const margin = 20; // 窗口间最小间距
+            
+            for (const pos of usedPositions) {
+                if (!(x + width + margin <= pos.x || 
+                      pos.x + pos.width + margin <= x || 
+                      y + height + margin <= pos.y || 
+                      pos.y + pos.height + margin <= y)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // 暂停/继续
+        function togglePause() {
+            isPaused = !isPaused;
+            pauseBtn.textContent = isPaused ? "Continue" : "Pause";
+        }
+
+        // 重置展示
+        function resetShow() {
+            clearInterval(intervalId);
+            currentIndex = 0;
+            counterElement.textContent = "0";
+            windowsContainer.innerHTML = '';
+            usedPositions.length = 0;
+            isPaused = false;
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            pauseBtn.textContent = "Pause";
+        }
+
+        // 加速
+        function speedUp() {
+            intervalTime = Math.max(200, intervalTime - 200); // 最快0.2秒
+            if (intervalId && !isPaused) {
+                clearInterval(intervalId);
+                intervalId = setInterval(createWindow, intervalTime);
+            }
+        }
+
+        // 减速
+        function speedDown() {
+            intervalTime = Math.min(3000, intervalTime + 200); // 最慢3秒
+            if (intervalId && !isPaused) {
+                clearInterval(intervalId);
+                intervalId = setInterval(createWindow, intervalTime);
+            }
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
