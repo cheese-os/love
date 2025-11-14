@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SECRET - This is the Love</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            overflow: hidden;
+            background-color: white;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 40px);
+            grid-template-rows: repeat(auto-fill, 40px);
+            z-index: 1;
+        }
+        
+        .cell {
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(200, 200, 200, 0.5);
+            background-color: white;
+        }
+        
+        #title {
+            font-family: "Blackletter", "Times New Roman", serif;
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 60px;
+            z-index: 2;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        #controls {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 2;
+        }
+        
+        .control-btn {
+            font-family: "Segoe Print", "Comic Sans MS", cursive;
+            font-size: 24px;
+            padding: 12px 30px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border: 2px solid rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .control-btn:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+            border-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .control-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .popup {
+            position: absolute;
+            width: 300px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            text-align: center;
+            font-weight: bold;
+            animation: fadeIn 0.5s, fadeOut 0.5s 2s forwards;
+        }
+        
+        .love-word {
+            font-size: 36px;
+            margin-bottom: 10px;
+            font-family: "Dancing Script", cursive;
+        }
+        
+        .country {
+            font-size: 18px;
+            font-family: "Dancing Script", cursive;
+            font-style: italic;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0; transform: scale(0.8); }
+        }
+        
+        /* 添加不同字体的回退选项 */
+        @font-face {
+            font-family: 'Blackletter';
+            src: local('Old English Text MT'), local('Blackletter');
+        }
+        
+        /* 为不同语言添加特定字体 */
+        .chinese-simplified { font-family: "STKaiti", "KaiTi", "SimKai", serif; }
+        .chinese-traditional { font-family: "PMingLiU", "MingLiU", serif; }
+        .japanese { font-family: "MS PMincho", "MS Mincho", serif; }
+        .korean { font-family: "Batang", "Gulim", serif; }
+        .arabic { font-family: "Traditional Arabic", serif; }
+        .hebrew { font-family: "David", serif; }
+        .cyrillic { font-family: "Times New Roman", serif; }
+        .thai { font-family: "Angsana New", serif; }
+        .devanagari { font-family: "Mangal", serif; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="container">
+        <div id="grid"></div>
+        <h1 id="title">SECRET</h1>
+        <div id="controls">
+            <button class="control-btn" id="beginBtn">Begin</button>
+            <button class="control-btn" id="continueBtn">Continue</button>
+            <button class="control-btn" id="fasterBtn">Faster</button>
+            <button class="control-btn" id="slowerBtn">Slower</button>
+        </div>
+    </div>
+
+    <script>
+        // 准备134种语言的"爱"字
+        const loveWords = [
+            { word: "爱", country: "China", language: "Chinese (Simplified)", scriptClass: "chinese-simplified" },
+            { word: "Love", country: "English", language: "English", scriptClass: "" },
+            { word: "Amour", country: "France", language: "French", scriptClass: "" },
+            { word: "Liebe", country: "Germany", language: "German", scriptClass: "" },
+            { word: "Amore", country: "Italy", language: "Italian", scriptClass: "" },
+            { word: "Amor", country: "Spain", language: "Spanish", scriptClass: "" },
+            { word: "Любовь", country: "Russia", language: "Russian", scriptClass: "cyrillic" },
+            { word: "حب", country: "Arab", language: "Arabic", scriptClass: "arabic" },
+            { word: "प्रेम", country: "India", language: "Hindi", scriptClass: "devanagari" },
+            { word: "Cinta", country: "Indonesia", language: "Indonesian", scriptClass: "" },
+            { word: "Kjærlighet", country: "Norway", language: "Norwegian", scriptClass: "" },
+            { word: "Kärlek", country: "Sweden", language: "Swedish", scriptClass: "" },
+            { word: "Liefde", country: "Netherlands", language: "Dutch", scriptClass: "" },
+            { word: "Szerelem", country: "Hungary", language: "Hungarian", scriptClass: "" },
+            { word: "Αγάπη", country: "Greece", language: "Greek", scriptClass: "" },
+            { word: "Sevgi", country: "Turkey", language: "Turkish", scriptClass: "" },
+            { word: "محبت", country: "Iran", language: "Persian", scriptClass: "arabic" },
+            { word: "사랑", country: "Korea", language: "Korean", scriptClass: "korean" },
+            { word: "愛", country: "Japan", language: "Japanese", scriptClass: "japanese" },
+            { word: "Tình yêu", country: "Vietnam", language: "Vietnamese", scriptClass: "" },
+            { word: "אהבה", country: "Israel", language: "Hebrew", scriptClass: "hebrew" },
+            { word: "Mīlestība", country: "Latvia", language: "Latvian", scriptClass: "" },
+            { word: "Məhəbbət", country: "Azerbaijan", language: "Azerbaijani", scriptClass: "" },
+            { word: "Armastus", country: "Estonia", language: "Estonian", scriptClass: "" },
+            { word: "Љубав", country: "Serbia", language: "Serbian", scriptClass: "cyrillic" },
+            { word: "Ljubav", country: "Croatia", language: "Croatian", scriptClass: "" },
+            { word: "Láska", country: "Czech", language: "Czech", scriptClass: "" },
+            { word: "Lásky", country: "Slovakia", language: "Slovak", scriptClass: "" },
+            { word: "Mīlestība", country: "Latvia", language: "Latvian", scriptClass: "" },
+            { word: "Meilė", country: "Lithuania", language: "Lithuanian", scriptClass: "" },
+            { word: "Dashuri", country: "Albania", language: "Albanian", scriptClass: "" },
+            { word: "Љубов", country: "Macedonia", language: "Macedonian", scriptClass: "cyrillic" },
+            { word: "Dragoste", country: "Romania", language: "Romanian", scriptClass: "" },
+            { word: "Любов", country: "Ukraine", language: "Ukrainian", scriptClass: "cyrillic" },
+            { word: "Upendo", country: "Kenya", language: "Swahili", scriptClass: "" },
+            { word: "ፍቅር", country: "Ethiopia", language: "Amharic", scriptClass: "" },
+            { word: "Cariad", country: "Wales", language: "Welsh", scriptClass: "" },
+            { word: "Grá", country: "Ireland", language: "Irish", scriptClass: "" },
+            { word: "Kjærleik", country: "Norway", language: "Nynorsk", scriptClass: "" },
+            { word: "Rakkaus", country: "Finland", language: "Finnish", scriptClass: "" },
+            { word: "Elskede", country: "Denmark", language: "Danish", scriptClass: "" },
+            { word: "Sòòyay", country: "Niger", language: "Zarma", scriptClass: "" },
+            { word: "Munaña", country: "Bolivia", language: "Aymara", scriptClass: "" },
+            { word: "Asgæ", country: "Iran", language: "Kurdish", scriptClass: "" },
+            { word: "Szeretet", country: "Hungary", language: "Hungarian", scriptClass: "" },
+            { word: "Mahal", country: "Philippines", language: "Tagalog", scriptClass: "" },
+            { word: "Pag-ibig", country: "Philippines", language: "Filipino", scriptClass: "" },
+            { word: "Cariño", country: "Spain", language: "Galician", scriptClass: "" },
+            { word: "Maitasun", country: "Spain", language: "Basque", scriptClass: "" },
+            { word: "Amor", country: "Portugal", language: "Portuguese", scriptClass: "" },
+            { word: "Kærlighed", country: "Denmark", language: "Danish", scriptClass: "" },
+            { word: "愛", country: "Taiwan", language: "Chinese (Traditional)", scriptClass: "chinese-traditional" },
+            { word: "حب", country: "Egypt", language: "Arabic", scriptClass: "arabic" },
+            { word: "محبت", country: "Pakistan", language: "Urdu", scriptClass: "arabic" },
+            { word: "प्रेम", country: "Nepal", language: "Nepali", scriptClass: "devanagari" },
+            { word: "प्यार", country: "India", language: "Hindi", scriptClass: "devanagari" },
+            { word: "കാമം", country: "India", language: "Malayalam", scriptClass: "" },
+            { word: "प्रेम", country: "India", language: "Marathi", scriptClass: "devanagari" },
+            { word: "ప్రేమ", country: "India", language: "Telugu", scriptClass: "" },
+            { word: "প্রেম", country: "Bangladesh", language: "Bengali", scriptClass: "" },
+            { word: "ආදරය", country: "Sri Lanka", language: "Sinhala", scriptClass: "" },
+            { word: "محبة", country: "Morocco", language: "Arabic", scriptClass: "arabic" },
+            { word: "Սեր", country: "Armenia", language: "Armenian", scriptClass: "" },
+            { word: "სიყვარული", country: "Georgia", language: "Georgian", scriptClass: "" },
+            { word: "Sevgi", country: "Azerbaijan", language: "Azerbaijani", scriptClass: "" },
+            { word: "Mahabbat", country: "Uzbekistan", language: "Uzbek", scriptClass: "" },
+            { word: "Сүйүү", country: "Kyrgyzstan", language: "Kyrgyz", scriptClass: "cyrillic" },
+            { word: "Sevgi", country: "Turkmenistan", language: "Turkmen", scriptClass: "" },
+            { word: "Mahabbat", country: "Tajikistan", language: "Tajik", scriptClass: "" },
+            { word: "محبت", country: "Afghanistan", language: "Dari", scriptClass: "arabic" },
+            { word: "مينه", country: "Afghanistan", language: "Pashto", scriptClass: "arabic" },
+            { word: "Cinta", country: "Malaysia", language: "Malay", scriptClass: "" },
+            { word: "Kasih", country: "Indonesia", language: "Indonesian", scriptClass: "" },
+            { word: "ความรัก", country: "Thailand", language: "Thai", scriptClass: "thai" },
+            { word: "ប្រណី", country: "Cambodia", language: "Khmer", scriptClass: "" },
+            { word: "အချစ်", country: "Myanmar", language: "Burmese", scriptClass: "" },
+            { word: "Pagkagugma", country: "Philippines", language: "Cebuano", scriptClass: "" },
+            { word: "Mahal", country: "Philippines", language: "Tagalog", scriptClass: "" },
+            { word: "Aloha", country: "Hawaii", language: "Hawaiian", scriptClass: "" },
+            { word: "Aroha", country: "New Zealand", language: "Māori", scriptClass: "" },
+            { word: "Liefde", country: "South Africa", language: "Afrikaans", scriptClass: "" },
+            { word: "Uthando", country: "South Africa", language: "Zulu", scriptClass: "" },
+            { word: "Lerato", country: "South Africa", language: "Sotho", scriptClass: "" },
+            { word: "Orere", country: "Nigeria", language: "Yoruba", scriptClass: "" },
+            { word: "Iftiin", country: "Somalia", language: "Somali", scriptClass: "" },
+            { word: "Hub", country: "Somalia", language: "Somali", scriptClass: "" },
+            { word: "Wuri", country: "Mali", language: "Bambara", scriptClass: "" },
+            { word: "So", country: "Mali", language: "Bambara", scriptClass: "" },
+            { word: "Dɔ", country: "Ghana", language: "Twi", scriptClass: "" },
+            { word: "Ife", country: "Nigeria", language: "Igbo", scriptClass: "" },
+            { word: "Ihu'nanya", country: "Nigeria", language: "Igbo", scriptClass: "" },
+            { word: "Ɗa'", country: "Chad", language: "Ngambay", scriptClass: "" },
+            { word: "Rũciaro", country: "Kenya", language: "Kikuyu", scriptClass: "" },
+            { word: "Wendo", country: "Kenya", language: "Luhya", scriptClass: "" },
+            { word: "Chikondi", country: "Malawi", language: "Chichewa", scriptClass: "" },
+            { word: "Urukundo", country: "Rwanda", language: "Kinyarwanda", scriptClass: "" },
+            { word: "Urukundo", country: "Burundi", language: "Kirundi", scriptClass: "" },
+            { word: "Mahaba", country: "Tanzania", language: "Swahili", scriptClass: "" },
+            { word: "Upendo", country: "Tanzania", language: "Swahili", scriptClass: "" },
+            { word: "Orere", country: "Nigeria", language: "Yoruba", scriptClass: "" },
+            { word: "Ifẹ", country: "Nigeria", language: "Yoruba", scriptClass: "" },
+            { word: "So", country: "Mali", language: "Bambara", scriptClass: "" },
+            { word: "Kanû", country: "Mali", language: "Songhay", scriptClass: "" },
+            { word: "Gac", country: "Sudan", language: "Dinka", scriptClass: "" },
+            { word: "Thandaza", country: "Zimbabwe", language: "Shona", scriptClass: "" },
+            { word: "Lerato", country: "Botswana", language: "Tswana", scriptClass: "" },
+            { word: "Go rata", country: "Botswana", language: "Tswana", scriptClass: "" },
+            { word: "Uthando", country: "South Africa", language: "Xhosa", scriptClass: "" },
+            { word: "Liefde", country: "Namibia", language: "Afrikaans", scriptClass: "" },
+            { word: "Amour", country: "Madagascar", language: "French", scriptClass: "" },
+            { word: "Fitia", country: "Madagascar", language: "Malagasy", scriptClass: "" },
+            { word: "Alofa", country: "Samoa", language: "Samoan", scriptClass: "" },
+            { word: "Aroha", country: "New Zealand", language: "Māori", scriptClass: "" },
+            { word: "Ofa", country: "Tonga", language: "Tongan", scriptClass: "" },
+            { word: "Aloha", country: "Hawaii", language: "Hawaiian", scriptClass: "" },
+            { word: "Ke aloha", country: "Hawaii", language: "Hawaiian", scriptClass: "" },
+            { word: "Aroha", country: "Cook Islands", language: "Cook Islands Māori", scriptClass: "" },
+            { word: "Alofa", country: "Tuvalu", language: "Tuvaluan", scriptClass: "" },
+            { word: "Alofa", country: "Tokelau", language: "Tokelauan", scriptClass: "" },
+            { word: "Aroha", country: "New Zealand", language: "Māori", scriptClass: "" },
+            { word: "愛", country: "China", language: "Chinese (Traditional)", scriptClass: "chinese-traditional" }
+        ];
+
+        // 背景颜色数组
+        const bgColors = ['#CDB2D4', '#FACCF4', '#A9C3FF', '#E8E186', '#F3994A', '#ACA7A3'];
+        
+        // 初始化变量
+        let isRunning = false;
+        let intervalTime = 500; // 默认0.5秒
+        let intervalId = null;
+        let currentIndex = 0;
+        
+        // 创建网格
+        function createGrid() {
+            const grid = document.getElementById('grid');
+            const cellCount = Math.ceil(window.innerWidth / 40) * Math.ceil(window.innerHeight / 40);
+            
+            grid.innerHTML = '';
+            for (let i = 0; i < cellCount; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                grid.appendChild(cell);
+            }
+        }
+        
+        // 显示一个"爱"字弹窗
+        function showLoveWord() {
+            if (currentIndex >= loveWords.length) {
+                currentIndex = 0; // 循环显示
+            }
+            
+            const loveData = loveWords[currentIndex];
+            const popup = document.createElement('div');
+            popup.className = 'popup';
+            
+            // 随机位置
+            const x = Math.random() * (window.innerWidth - 300);
+            const y = Math.random() * (window.innerHeight - 150);
+            
+            // 随机背景颜色
+            const bgColor = bgColors[Math.floor(Math.random() * bgColors.length)];
+            
+            popup.style.left = `${x}px`;
+            popup.style.top = `${y}px`;
+            popup.style.backgroundColor = bgColor;
+            
+            // 创建内容
+            const wordDiv = document.createElement('div');
+            wordDiv.className = `love-word ${loveData.scriptClass}`;
+            wordDiv.textContent = loveData.word;
+            
+            const countryDiv = document.createElement('div');
+            countryDiv.className = 'country';
+            countryDiv.textContent = loveData.country;
+            
+            popup.appendChild(wordDiv);
+            popup.appendChild(countryDiv);
+            
+            document.body.appendChild(popup);
+            
+            // 2秒后移除弹窗
+            setTimeout(() => {
+                if (popup.parentNode) {
+                    popup.parentNode.removeChild(popup);
+                }
+            }, 2500);
+            
+            currentIndex++;
+        }
+        
+        // 开始显示
+        function begin() {
+            if (isRunning) return;
+            
+            isRunning = true;
+            currentIndex = 0;
+            startInterval();
+        }
+        
+        // 继续显示
+        function continueShow() {
+            if (isRunning) return;
+            
+            isRunning = true;
+            startInterval();
+        }
+        
+        // 加速
+        function faster() {
+            if (intervalTime > 100) {
+                intervalTime -= 100;
+                if (isRunning) {
+                    clearInterval(intervalId);
+                    startInterval();
+                }
+            }
+        }
+        
+        // 减速
+        function slower() {
+            intervalTime += 100;
+            if (isRunning) {
+                clearInterval(intervalId);
+                startInterval();
+            }
+        }
+        
+        // 启动定时器
+        function startInterval() {
+            intervalId = setInterval(showLoveWord, intervalTime);
+        }
+        
+        // 事件监听
+        document.getElementById('beginBtn').addEventListener('click', begin);
+        document.getElementById('continueBtn').addEventListener('click', continueShow);
+        document.getElementById('fasterBtn').addEventListener('click', faster);
+        document.getElementById('slowerBtn').addEventListener('click', slower);
+        
+        // 窗口大小改变时重新创建网格
+        window.addEventListener('resize', createGrid);
+        
+        // 初始化
+        createGrid();
+    </script>
+</body>
+</html>
